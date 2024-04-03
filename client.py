@@ -13,7 +13,7 @@ class Client(QMainWindow):
         self.initUI()
         self.client_socket = None
         self.isConnected = False
-        self.mouse_click_position = (0, 0)  # Initialize with a default position
+        self.mouse_click_position = (100, 100)  # Initialize with a default position
 
     def initUI(self):
         self.setWindowTitle('Client')
@@ -23,7 +23,7 @@ class Client(QMainWindow):
         
         self.ipInput = QLineEdit(self)
         self.ipInput.setPlaceholderText('Server IP')
-        self.ipInput.setText('10.91.77.8')  # 设置默认IP地址
+        self.ipInput.setText('192.168.1.1')  # 设置默认IP地址
         layout.addWidget(self.ipInput)
         
         self.portInput = QLineEdit(self)
@@ -48,7 +48,6 @@ class Client(QMainWindow):
         self.connectionStatus.setStyleSheet("background-color: red")
         self.connectionStatus.setFixedHeight(20)
         layout.addWidget(self.connectionStatus)
-        
         
         container = QWidget()
         container.setLayout(layout)
@@ -96,10 +95,18 @@ class Client(QMainWindow):
         while self.isConnected:
             try:
                 message = self.client_socket.recv(1024).decode('utf-8')
-                if message:
+                if message == ("start_click" or "stop_click"):
                     print("Received message:", message)
                     # Simulate click at the recorded position when a specific message is received
                     pyautogui.click(self.mouse_click_position[0], self.mouse_click_position[1])
+                # elif message == "stop_click":
+                #     print("Received message:", message)
+                #     # Simulate click at the recorded position when a specific message is received
+                #     pyautogui.click(self.mouse_click_position[0], self.mouse_click_position[1])
+                elif message != ("start_click" or "stop_click"):
+                    print("Received message:", message, ", Do nothing")
+                    # Simulate click at the recorded position when a specific message is received
+                    # pyautogui.click(self.mouse_click_position[0], self.mouse_click_position[1])
                 else:
                     self.isConnected = False
                     self.timer.start(500)
