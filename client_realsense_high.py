@@ -30,7 +30,7 @@ class Client(QMainWindow):
         
         self.portInput = QLineEdit(self)
         self.portInput.setPlaceholderText('Port')
-        self.portInput.setText('9999') 
+        self.portInput.setText('9999')
         layout.addWidget(self.portInput)
         
         self.connectBtn = QPushButton('Connect', self)
@@ -70,16 +70,16 @@ class Client(QMainWindow):
                     if not os.path.exists(directory):
                         os.makedirs(directory)
                     self.save_directory = directory
+                    # pipeline configuration
                     self.pipeline = rs.pipeline()
                     config = rs.config()
-                    config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 90)
-                    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+                    config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, 30)
+                    config.enable_stream(rs.stream.color, 1280, 720, rs.format.bgr8, 30)
                     self.pipeline.start(config)
                     self.depth_video = cv2.VideoWriter(os.path.join(self.save_directory, 'depth_video.avi'), 
-                                                    cv2.VideoWriter_fourcc(*'XVID'), 90, (640, 480), False)
+                                                    cv2.VideoWriter_fourcc(*'XVID'), 30, (1280, 720), False)
                     self.rgb_video = cv2.VideoWriter(os.path.join(self.save_directory, 'rgb_video.avi'), 
-                                                    cv2.VideoWriter_fourcc(*'XVID'), 30, (640, 480))
-
+                                                    cv2.VideoWriter_fourcc(*'XVID'), 30, (1280, 720))
             except Exception as e:
                 self.statusLabel.setText(f'Error: {e}')
                 self.isConnected = False
@@ -90,7 +90,6 @@ class Client(QMainWindow):
 
     def capture_video(self):
         try:
-            cnt = 0
             while self.pipeline:
                 frames = self.pipeline.wait_for_frames()
                 depth_frame = frames.get_depth_frame()
@@ -101,9 +100,7 @@ class Client(QMainWindow):
                 color_image = np.asanyarray(color_frame.get_data())
                 depth_image_8bit = cv2.convertScaleAbs(depth_image, alpha=0.03)
                 self.depth_video.write(depth_image_8bit)
-                if cnt % 3 == 0:  
-                    self.rgb_video.write(color_image)
-                cnt += 1
+                self.rgb_video.write(color_image)
         except Exception as e:
             print(f"Error capturing video: {e}")
 
