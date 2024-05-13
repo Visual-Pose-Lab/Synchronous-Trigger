@@ -14,7 +14,7 @@ class Server(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Server Control Panel')
-        self.setGeometry(100, 100, 400, 300)
+        self.setGeometry(100, 100, 500, 700)
         
         self.layout = QVBoxLayout()
         
